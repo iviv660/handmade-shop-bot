@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"bot/internal/dto"
+	"app/internal/dto"
 	"context"
 
 	"gorm.io/gorm"
