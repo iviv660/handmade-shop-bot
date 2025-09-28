@@ -14,7 +14,7 @@ type AddProductState struct {
 	Name        string
 	Description string
 	Price       float64
-	Photos      []string
+	Photo       string
 }
 
 var addProductStates = make(map[int64]*AddProductState)
@@ -49,14 +49,15 @@ func (h *Handlers) HandleAdminInput(c telebot.Context) error {
 	case 4:
 		if c.Message().Photo != nil {
 			fileID := c.Message().Photo.FileID
-			state.Photos = append(state.Photos, fileID)
+			state.Photo = fileID
 
 			product := &dto.Product{
 				Name:        state.Name,
 				Description: state.Description,
 				Price:       state.Price,
-				Photos:      state.Photos,
+				PhotoID:     state.Photo,
 			}
+
 			_, err := h.Uc.ProductCreate(context.TODO(), product)
 			if err != nil {
 				return c.Send("❌ Ошибка при сохранении товара")
@@ -65,7 +66,9 @@ func (h *Handlers) HandleAdminInput(c telebot.Context) error {
 			delete(addProductStates, tgID)
 			return c.Send(fmt.Sprintf("✅ Товар \"%s\" успешно добавлен!", product.Name))
 		}
+
 		return c.Send("❌ Отправьте фото товара")
+
 	}
 
 	return nil

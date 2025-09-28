@@ -24,7 +24,7 @@ func (db *ProductDB) Create(ctx context.Context, product *dto.Product) (*dto.Pro
 }
 
 func (db *ProductDB) Delete(ctx context.Context, productID int64) error {
-	result := db.gorm.WithContext(ctx).Where("product_id = ?", productID).Delete(&dto.Product{})
+	result := db.gorm.WithContext(ctx).Where("id = ?", productID).Delete(&dto.Product{})
 	if result.Error != nil {
 		return result.Error
 	}
@@ -59,48 +59,27 @@ func (db *ProductDB) List(ctx context.Context) ([]*dto.Product, error) {
 }
 
 func (db *ProductDB) GetByID(ctx context.Context, productID int64) (*dto.Product, error) {
-	var model dto.Product
-	if err := db.gorm.WithContext(ctx).First(&model, productID).Error; err != nil {
-		return nil, err
-	}
-
-	var photos []dto.ProductPhoto
+	var product dto.Product
 	if err := db.gorm.WithContext(ctx).
-		Where("product_id = ?", productID).
-		Find(&photos).Error; err != nil {
+		First(&product, productID).Error; err != nil {
 		return nil, err
 	}
 
-	product := &dto.Product{
-		ID:          model.ID,
-		Name:        model.Name,
-		Description: model.Description,
-		Price:       model.Price,
-		Stock:       model.Stock,
-		CreatedAt:   model.CreatedAt,
-		Photos:      make([]string, 0, len(photos)),
-	}
-
-	for _, p := range photos {
-		product.Photos = append(product.Photos, p.FileID)
-	}
-
-	return product, nil
+	return &product, nil
 }
 
 func (db *ProductDB) AddPhoto(ctx context.Context, productID int64, fileID string) error {
-	photo := dto.ProductPhoto{
-		ProductID: productID,
-		FileID:    fileID,
-	}
-
-	result := db.gorm.WithContext(ctx).Create(&photo)
+	result := db.gorm.WithContext(ctx).
+		Model(&dto.Product{}).
+		Where("id = ?", productID).
+		Update("photo_id", fileID)
 	return result.Error
 }
 
 func (db *ProductDB) RemovePhotos(ctx context.Context, productID int64) error {
-	result := db.gorm.WithContext(ctx).
-		Where("product_id = ?", productID).
-		Delete(&dto.ProductPhoto{})
-	return result.Error
+	return db.gorm.WithContext(ctx).
+		Model(&dto.Product{}).
+		Where("id = ?", productID).
+		Update("photo_id", nil).
+		Error
 }

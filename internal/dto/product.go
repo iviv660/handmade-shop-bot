@@ -9,6 +9,5 @@ type Product struct {
 	Price       float64   `json:"price"`
 	Stock       int       `json:"stock"`
 	CreatedAt   time.Time `json:"created_at" gorm:"autoCreateTime"`
-	// связь: один продукт → много фоток
-	Photos []string `json:"photos" gorm:"-"`
+	PhotoID     string    `json:"photo_id" gorm:"photo_id"`
 }

@@ -1,16 +1,18 @@
-FROM --platform=$BUILDPLATFORM golang:1.25.1-alpine AS builder
+FROM golang:1.25.1-bookworm AS builder
 WORKDIR /src
-RUN apk add --no-cache git ca-certificates && update-ca-certificates
+RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates file \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY go.mod go.sum ./
 RUN go mod download
+
 COPY . .
 
-ARG TARGETOS
-ARG TARGETARCH
-RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o /app ./cmd/app && chmod +x /app
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 \
+    go build -trimpath -ldflags "-s -w" -o /app ./cmd/app && chmod +x /app
 
-FROM --platform=$TARGETPLATFORM alpine:3.20
+FROM gcr.io/distroless/static-debian12:nonroot
 WORKDIR /
 COPY --from=builder /app /app
+USER nonroot:nonroot
 ENTRYPOINT ["/app"]

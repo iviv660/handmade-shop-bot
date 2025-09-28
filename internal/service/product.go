@@ -91,12 +91,11 @@ func (uc *UseCase) ProductGetByID(ctx context.Context, productID int64) (*dto.Pr
 		return nil, err
 	}
 	uc.logger.Info("successfully get product", map[string]any{
-		"product_id":   productID,
-		"name":         product.Name,
-		"description":  product.Description,
-		"price":        product.Price,
-		"stock":        product.Stock,
-		"count_photos": len(product.Photos),
+		"product_id":  productID,
+		"name":        product.Name,
+		"description": product.Description,
+		"price":       product.Price,
+		"stock":       product.Stock,
 	})
 	return product, nil
 }

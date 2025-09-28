@@ -41,9 +41,9 @@ func (h *Handlers) Product(c telebot.Context) error {
 	text := fmt.Sprintf("*%s*\n\n%s\n\n💰 Цена: %.2f ₽",
 		product.Name, product.Description, product.Price)
 
-	if len(product.Photos) > 0 {
+	if product.PhotoID != "" {
 		_, err := h.Bot.Send(c.Sender(), &telebot.Photo{
-			File:    telebot.File{FileID: product.Photos[0]},
+			File:    telebot.File{FileID: product.PhotoID},
 			Caption: text,
 		}, markup, telebot.ModeMarkdown)
 		return err

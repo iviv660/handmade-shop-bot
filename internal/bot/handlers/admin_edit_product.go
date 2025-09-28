@@ -23,7 +23,7 @@ func (h *Handlers) EditProduct(c telebot.Context) error {
 		Name:        product.Name,
 		Description: product.Description,
 		Price:       product.Price,
-		Photos:      product.Photos,
+		Photo:       product.PhotoID,
 	}
 
 	return c.Send(fmt.Sprintf("✏️ Редактирование товара #%d.\nВведите новое название (или оставьте старое: %s):",

@@ -6,6 +6,7 @@ import (
 	"app/internal/logger"
 	"app/internal/service"
 	"app/internal/storage"
+	"app/internal/youkassa"
 	"context"
 	"fmt"
 	"os"
@@ -26,8 +27,10 @@ func Run() error {
 	repoPr := storage.NewProductDB(gorm)
 	repoOr := storage.NewOrderDB(gorm)
 
+	payment := youkassa.NewYooKassa(config.C.ShopID, config.C.SecretKey, config.C.BotURL)
+
 	logg := logger.New()
-	uc := service.NewUseCase(repoUs, repoPr, repoOr, nil, logg)
+	uc := service.NewUseCase(repoUs, repoPr, repoOr, payment, logg)
 
 	token := os.Getenv("TELEGRAM_TOKEN")
 	if token == "" {

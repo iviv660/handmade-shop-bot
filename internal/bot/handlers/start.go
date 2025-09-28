@@ -18,21 +18,24 @@ type Handlers struct {
 func (h *Handlers) Start(c telebot.Context) error {
 	tgID := c.Sender().ID
 	username := c.Sender().Username
-	_, err := h.Uc.UserRegister(context.TODO(), tgID, username)
-	if err != nil {
-		return c.Send("❌ Ошибка при регистрации пользователя")
-	}
+
 	user, err := h.Uc.UserGetByTelegramID(context.TODO(), tgID)
 	if err != nil {
-		return c.Send("❌ Ошибка при получении роли пользователя")
+		user, err = h.Uc.UserRegister(context.TODO(), tgID, username)
+		if err != nil {
+			return c.Send("❌ Ошибка при регистрации пользователя")
+		}
 	}
+
 	if user.Role == "user" {
-		return c.Send(fmt.Sprintf("Привет, %s 👋 Я магазин-бот.\n\nНажми «📦Каталог», чтобы посмотреть товары.", user.Username),
+		return c.Send(
+			fmt.Sprintf("Привет, %s 👋 Я магазин-бот.\n\nНажми «📦Каталог», чтобы посмотреть товары.", user.Username),
 			keyboards.CatalogKeyboard(),
 		)
-	} else {
-		return c.Send(fmt.Sprintln("Привет админ 👋"),
-			keyboards.AdminKeyboard(),
-		)
 	}
+
+	return c.Send(
+		"Привет админ 👋",
+		keyboards.AdminKeyboard(),
+	)
 }

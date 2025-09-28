@@ -1,4 +1,4 @@
-package app
+package main
 
 import (
 	"app/internal/app"

@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    platform: linux/arm64   # 👈 фикс под Mac M4
+    platform: linux/arm64
     env_file:
       - .env
     depends_on:

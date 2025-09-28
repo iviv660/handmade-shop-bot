@@ -15,7 +15,7 @@ type EditProductState struct {
 	Name        string
 	Description string
 	Price       float64
-	Photos      []string
+	Photo       string
 }
 
 var editProductStates = make(map[int64]*EditProductState)
@@ -56,14 +56,14 @@ func (h *Handlers) HandleEditProductInput(c telebot.Context) error {
 	case 4:
 		if c.Message().Photo != nil {
 			fileID := c.Message().Photo.FileID
-			state.Photos = []string{fileID}
+			state.Photo = fileID
 		}
 		product := &dto.Product{
 			ID:          state.ProductID,
 			Name:        state.Name,
 			Description: state.Description,
 			Price:       state.Price,
-			Photos:      state.Photos,
+			PhotoID:     state.Photo,
 		}
 		_, err := h.Uc.ProductUpdate(context.TODO(), product)
 		if err != nil {
