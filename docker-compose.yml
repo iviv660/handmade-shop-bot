@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
     platform: linux/arm64
     env_file:
-      - .env
+      - .env.example
     depends_on:
       postgres:
         condition: service_healthy
@@ -15,7 +15,7 @@ services:
   postgres:
     image: postgres:17
     env_file:
-      - .env
+      - .env.example
     ports:
       - "5432:5432"
     volumes:
@@ -28,7 +28,7 @@ services:
   migrations:
     image: migrate/migrate
     env_file:
-      - .env
+      - .env.example
     volumes:
       - ./migrations:/migrations
     command: >
@@ -39,6 +39,37 @@ services:
       postgres:
         condition: service_healthy
     restart: "no"
+
+  postgres_exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter:latest
+    environment:
+      DATA_SOURCE_NAME: "postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres:5432/$POSTGRES_DB?sslmode=disable"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    ports:
+      - "9187:9187"
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus:/etc/prometheus:ro
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    depends_on:
+      - service
+
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=secret
+    restart: unless-stopped
+    depends_on:
+      - prometheus
 
 volumes:
   db_data:

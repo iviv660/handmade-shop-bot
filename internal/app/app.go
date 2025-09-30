@@ -2,6 +2,7 @@ package app
 
 import (
 	"app/internal/bot"
+	"app/internal/bot/metrics"
 	"app/internal/config"
 	"app/internal/logger"
 	"app/internal/service"
@@ -9,6 +10,7 @@ import (
 	"app/internal/youkassa"
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -45,6 +47,12 @@ func Run() error {
 	}
 
 	bot.RegisterHandlers(b, uc, config.C.AdminID)
+
+	go func() {
+		if err := metrics.Serve(":9090"); err != nil {
+			log.Fatalf("metrics serve: %v", err)
+		}
+	}()
 
 	b.Start()
 	return nil
